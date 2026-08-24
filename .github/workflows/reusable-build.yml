@@ -56,8 +56,16 @@ jobs:
           cache-from: type=registry,ref=swr.af-south-1.myhuaweicloud.com/rafel/${{ inputs.service_name }}:cache
           cache-to: type=registry,ref=swr.af-south-1.myhuaweicloud.com/rafel/${{ inputs.service_name }}:cache,mode=max
 
+      # - name: Scan image
+      #   uses: aquasecurity/trivy-action@0.33.1
+      #   with:
+      #     image-ref: swr.af-south-1.myhuaweicloud.com/rafel/${{ inputs.service_name }}:${{ github.sha }}
+      #     severity: CRITICAL,HIGH
+      #     exit-code: 1
+
+
       - name: Scan image
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: swr.af-south-1.myhuaweicloud.com/rafel/${{ inputs.service_name }}:${{ github.sha }}
           severity: CRITICAL,HIGH
