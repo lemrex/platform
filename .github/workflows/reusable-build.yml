@@ -26,10 +26,10 @@ jobs:
       - name: Checkout service repo
         uses: actions/checkout@v4
 
-      - name: Checkout platform-templates
+      - name: Checkout platform
         uses: actions/checkout@v4
         with:
-          repository: rafel/platform-templates
+          repository: rafel/platform
           ref: ${{ inputs.dockerfile_ref }}
           path: .platform-templates
 
@@ -47,7 +47,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: .platform-templates/dockerfiles/${{ inputs.language }}.Dockerfile
+          file: .platform/dockerfiles/${{ inputs.language }}.Dockerfile
           push: true
           build-args: |
             SERVICE_NAME=${{ inputs.service_name }}
