@@ -29,7 +29,7 @@ jobs:
       - name: Checkout platform-templates
         uses: actions/checkout@v4
         with:
-          repository: your-org/platform-templates
+          repository: ralf/platform-templates
           ref: ${{ inputs.dockerfile_ref }}
           path: .platform-templates
 
@@ -40,8 +40,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: swr.af-south-1.myhuaweicloud.com
-          username: ${{ secrets.SWR_USERNAME }}
-          password: ${{ secrets.SWR_PASSWORD }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -52,13 +52,13 @@ jobs:
           build-args: |
             SERVICE_NAME=${{ inputs.service_name }}
           tags: |
-            swr.af-south-1.myhuaweicloud.com/your-org/${{ inputs.service_name }}:${{ github.sha }}
-          cache-from: type=registry,ref=swr.af-south-1.myhuaweicloud.com/your-org/${{ inputs.service_name }}:cache
-          cache-to: type=registry,ref=swr.af-south-1.myhuaweicloud.com/your-org/${{ inputs.service_name }}:cache,mode=max
+            swr.af-south-1.myhuaweicloud.com/ralf/${{ inputs.service_name }}:${{ github.sha }}
+          cache-from: type=registry,ref=swr.af-south-1.myhuaweicloud.com/ralf/${{ inputs.service_name }}:cache
+          cache-to: type=registry,ref=swr.af-south-1.myhuaweicloud.com/ralf/${{ inputs.service_name }}:cache,mode=max
 
       - name: Scan image
         uses: aquasecurity/trivy-action@0.24.0
         with:
-          image-ref: swr.af-south-1.myhuaweicloud.com/your-org/${{ inputs.service_name }}:${{ github.sha }}
+          image-ref: swr.af-south-1.myhuaweicloud.com/ralf/${{ inputs.service_name }}:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: 1
