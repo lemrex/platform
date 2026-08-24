@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Service repos reference this overlay style, pointing "resources" at the
+# platform-templates git base (pinned to a tag) instead of copying files locally.
+resources:
+  - github.com/your-org/platform-templates/k8s/base?ref=v1.0.0
+
+replicas:
+  - name: placeholder-service
+    count: 3
+
+patches:
+  - target:
+      kind: Deployment
+      name: placeholder-service
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "1"

@@ -1,0 +1,64 @@
+name: reusable-build
+
+on:
+  workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
+      language:
+        required: true
+        type: string   # go | node | java | python -> selects the Dockerfile template
+      dockerfile_ref:
+        required: false
+        type: string
+        default: v1.0.0   # pin to a platform-templates release tag
+    secrets:
+      SWR_USERNAME:
+        required: true
+      SWR_PASSWORD:
+        required: true
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout service repo
+        uses: actions/checkout@v4
+
+      - name: Checkout platform-templates
+        uses: actions/checkout@v4
+        with:
+          repository: your-org/platform-templates
+          ref: ${{ inputs.dockerfile_ref }}
+          path: .platform-templates
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to SWR
+        uses: docker/login-action@v3
+        with:
+          registry: swr.af-south-1.myhuaweicloud.com
+          username: ${{ secrets.SWR_USERNAME }}
+          password: ${{ secrets.SWR_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .platform-templates/dockerfiles/${{ inputs.language }}.Dockerfile
+          push: true
+          build-args: |
+            SERVICE_NAME=${{ inputs.service_name }}
+          tags: |
+            swr.af-south-1.myhuaweicloud.com/your-org/${{ inputs.service_name }}:${{ github.sha }}
+          cache-from: type=registry,ref=swr.af-south-1.myhuaweicloud.com/your-org/${{ inputs.service_name }}:cache
+          cache-to: type=registry,ref=swr.af-south-1.myhuaweicloud.com/your-org/${{ inputs.service_name }}:cache,mode=max
+
+      - name: Scan image
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: swr.af-south-1.myhuaweicloud.com/your-org/${{ inputs.service_name }}:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: 1
