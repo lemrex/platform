@@ -29,9 +29,9 @@ jobs:
       - name: Checkout platform
         uses: actions/checkout@v4
         with:
-          repository: rafel/platform
+          repository: lemrex/platform
           ref: ${{ inputs.dockerfile_ref }}
-          path: .platform-templates
+          path: .platform
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
